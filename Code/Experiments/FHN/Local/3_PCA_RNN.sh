@@ -52,8 +52,6 @@ iterative_latent_forecasting=1
 teacher_forcing_forecasting=1
 n_warmup=10
 
-mode=test
-
 CUDA_VISIBLE_DEVICES=$CUDA_DEVICES python3 RUN.py dimred_rnn \
 --system_name $system_name \
 --input_dim $input_dim \
