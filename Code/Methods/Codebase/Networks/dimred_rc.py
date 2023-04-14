@@ -452,7 +452,7 @@ class dimred_rc():
             logfile_train = utils.getLogFileDir(self) + "/train.txt"
             print("[dimred_rc] Writing to log-file in path {:}".format(
                 logfile_train))
-            utils.writeToLogFile(self, logfile_train, data, fields_to_write)
+            utils.write_to_logfile(self, logfile_train, data, fields_to_write)
         data_path = utils.getModelDir(self) + "/data"
         utils.saveData(data, data_path, self.params["save_format"])
 

@@ -233,8 +233,8 @@ class multiscaleTestingClass:
                     logfile = utils.getLogFileDir(
                         self.model) + "/results_{:}_{:}.txt".format(
                             testing_mode, set_name)
-                    utils.writeToLogFile(self.model, logfile, results,
-                                         results["fields_2_save_2_logfile"])
+                    utils.write_to_logfile(self.model, logfile, results,
+                                           results["fields_2_save_2_logfile"])
 
     def plot(self):
         self.writeLogfiles()

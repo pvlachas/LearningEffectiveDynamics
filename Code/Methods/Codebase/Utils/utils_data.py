@@ -8,7 +8,6 @@
 ### SAVING AND LOADING FILES PROTOCOLS
 ##############################################################
 import pickle
-import hickle
 import time
 from . import utils_time
 
@@ -390,10 +389,8 @@ def getHDF5dataset(data_path, data_info_dict):
 
 
 def saveData(data, data_path, protocol):
-    assert (protocol in ["hickle", "pickle"])
-    if protocol == "hickle":
-        saveDataHickle(data, data_path)
-    elif protocol == "pickle":
+    assert (protocol in ["pickle"])
+    if protocol == "pickle":
         saveDataPickle(data, data_path)
     else:
         raise ValueError("Invalid protocol.")
@@ -401,19 +398,11 @@ def saveData(data, data_path, protocol):
 
 
 def loadData(data_path, protocol, add_file_format=True):
-    assert (protocol in ["hickle", "pickle"])
-    if protocol == "hickle":
-        return loadDataHickle(data_path, add_file_format=add_file_format)
-    elif protocol == "pickle":
+    assert (protocol in ["pickle"])
+    if protocol == "pickle":
         return loadDataPickle(data_path, add_file_format=add_file_format)
     else:
         raise ValueError("Invalid protocol.")
-
-
-def saveDataHickle(data, data_path, add_file_format=True):
-    if add_file_format: data_path += ".hkl"
-    hickle.dump(data, data_path)
-    return 0
 
 
 def saveDataPickle(data, data_path, add_file_format=True):
@@ -438,21 +427,6 @@ def loadDataPickle(data_path, add_str="", add_file_format=True):
         raise ValueError(inst)
     time_load_end = time.time()
     # printTime(time_load_end - time_load)
-    return data
-
-
-def loadDataHickle(data_path, add_str="", add_file_format=True):
-    if add_file_format: data_path += ".hkl"
-    print("{:}[utils_data] Loading Data...".format(add_str))
-    time_load = time.time()
-    try:
-        data = hickle.load(data_path)
-    except Exception as inst:
-        print("{:}[utils_data] Datafile\n {:s}\nNOT FOUND.".format(
-            add_str, data_path))
-        raise ValueError(inst)
-    time_load_end = time.time()
-    printTime(time_load_end - time_load)
     return data
 
 

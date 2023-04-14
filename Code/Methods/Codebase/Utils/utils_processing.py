@@ -2,10 +2,8 @@
 # # -*- coding: utf-8 -*-
 """Created by: Vlachas Pantelis, CSE-lab, ETH Zurich
 """
-#!/usr/bin/env python
 import numpy as np
 import pickle
-import hickle as hkl
 import io
 import os
 import time
@@ -13,7 +11,7 @@ import torch
 import warnings
 
 ######################################################
-#""" Utilities """
+# Utilities
 ######################################################
 from . import utils_time
 from . import utils_data
@@ -21,9 +19,9 @@ from . import utils_statistics
 from . import utils_metrics
 
 
-def writeToLogFile(model, logfile, data, fields_to_write):
+def write_to_logfile(model, logfile, data, fields_to_write):
     with io.open(logfile, 'a+') as f:
-        f.write("model_name:" + str(model.model_name))
+        f.write(f"model_name:{str(model.model_name)}")
         for field in fields_to_write:
             if (field not in data):
                 raise ValueError("Field {:} is not in data.".format(field))
@@ -50,13 +48,6 @@ def getReferenceTrainingTime(rtt, btt):
 
 
 def getErrorLabelsDict(model):
-    # error_dict = {
-    #     "MSE": [],
-    #     "RMSE": [],
-    #     "ABS": [],
-    #     "PSNR": [],
-    #     "SSIM": [],
-    # }
     error_dict = {}
     for key in model.data_info_dict["errors_to_compute"]:
         error_dict[key] = []
@@ -67,9 +58,9 @@ def computeErrors(target, prediction, data_info, single_sample=False):
     assert "errors_to_compute" in data_info
     errors_to_compute = data_info["errors_to_compute"]
     if single_sample:
-        spatial_dims = tuple([*range(len(np.shape(target)))])
+        spatial_dims = (*range(len(np.shape(target))), )
     else:
-        spatial_dims = tuple([*range(len(np.shape(target)))[1:]])
+        spatial_dims = (*range(len(np.shape(target)))[1:], )
     # ABSOLUTE ERROR
     abserror = np.abs(target - prediction)
     abserror = np.mean(abserror, axis=spatial_dims)
@@ -102,32 +93,35 @@ def computeErrors(target, prediction, data_info, single_sample=False):
         error_dict["RMSE"] = rmse
 
     if "NNAD" in errors_to_compute:
-        assert "data_std" in data_info, "ERROR: data_std needed to compute the NNAD not found in the data_info_dict."
-        assert "data_max" in data_info, "ERROR: data_max needed to compute the NNAD not found in the data_info_dict."
-        assert "data_min" in data_info, "ERROR: data_min needed to compute the NNAD not found in the data_info_dict."
+
+        assert "data_std" in data_info, \
+            "ERROR: data_std needed to compute the NNAD " \
+            "not found in the data_info_dict."
+        assert "data_max" in data_info, \
+            "ERROR: data_max needed to compute the NNAD " \
+            "not found in the data_info_dict."
+        assert "data_min" in data_info, \
+            "ERROR: data_min needed to compute the NNAD " \
+            "not found in the data_info_dict."
+
         data_std = data_info["data_std"]
         data_max = data_info["data_max"]
         data_min = data_info["data_min"]
 
         data_norm = data_max - data_min
-        # print(np.shape(rmse))
-        # print(np.shape(mse))
-        # print(np.shape(mse))
-        # print(np.shape(serror))
+
         temp = len(np.shape(target))
         num_channels = temp-1 if single_sample else temp-2
         for i in range(num_channels):
             data_norm = np.expand_dims(data_norm, 1)
 
-        # print(single_sample)
-        # print(num_channels)
-        if not single_sample: data_norm = data_norm[np.newaxis] # Adding the ic axis
-        # print(np.shape(data_norm))
-        # print(np.shape(serror))
+        if not single_sample:
+            data_norm = data_norm[np.newaxis] # Adding the ic axis
+
         nrmse = np.sqrt(serror / np.power(data_norm, 2.0))
         nrmse = np.mean(nrmse, axis=spatial_dims)
         error_dict["NNAD"] = nrmse
-        # print(ark)
+
     if "ABS" in errors_to_compute:
         error_dict["ABS"] = abserror
 
@@ -160,10 +154,6 @@ def computeErrors(target, prediction, data_info, single_sample=False):
 
 
 def comptuteErrorsInTime(model, targets_all, predictions_all):
-    # np.shape(targets_all) = [N_ICS, N_TIMESTEP, 1, Dx]
-    # np.shape(targets_all) = [N_ICS, N_TIMESTEP, 1, Dy, Dx] OR
-    # np.shape(targets_all) = [N_ICS, N_TIMESTEP, 1, Dz, Dy, Dx]
-
     if model.data_info_dict["structured"]:
         T = np.shape(targets_all)[1]
         N_ICS = np.shape(targets_all)[0]
@@ -224,96 +214,6 @@ def comptuteErrorsInTime(model, targets_all, predictions_all):
                 error_std_dict_in_time[key].append(
                     np.std(np.array(error_dict[key])))
     return error_mean_dict_in_time, error_std_dict_in_time
-
-
-# def computeStateDistributionStatisticsPerStateOutput(state_dist_statistics,
-#                                                      targets_all,
-#                                                      predictions_all):
-
-#     assert (len(np.shape(targets_all)) == 3)
-#     n_ics, T, N = np.shape(targets_all)
-#     targets_all = np.reshape(targets_all, (-1, *targets_all.shape[-1:]))
-#     predictions_all = np.reshape(predictions_all,
-#                                  (-1, *targets_all.shape[-1:]))
-#     l1_hist_errors, hist_data, wasserstein_distance_data, KS_errors, bounds, LL, nbins = [], [], [], [], [], [], []
-#     for n in range(N):
-#         target_data = targets_all[:, n]
-#         output_data = predictions_all[:, n]
-#         # min_ = np.min(target_data)
-#         # max_ = np.max(target_data)
-
-#         min_ = np.min([np.min(target_data), np.min(output_data)])
-#         max_ = np.max([np.max(target_data), np.max(output_data)])
-#         bounds_ = [min_, max_]
-#         # print("Bounds of state {:} = {:}".format(n, bounds_))
-#         LL_ = max_ - min_
-#         N_samples = np.shape(target_data)[0]
-#         nbins_ = utils_statistics.getNumberOfBins(N_samples, LL_)
-#         # print("Number of bins = {:}".format(nbins_))
-#         # L1_hist_error, error_vec, density_target_, density_pred_, bin_centers_ = utils_statistics.evaluateL1HistErrorVector(target_data, output_data, nbins_, bounds_)
-#         hist_data_ = utils_statistics.evaluateL1HistErrorVector(
-#             target_data, output_data, nbins_, bounds_)
-#         wasserstein_distances_ = utils_statistics.evaluateWassersteinDistance(
-#             target_data, output_data)
-#         KS_error = utils_statistics.evaluateKSError(target_data, output_data)
-
-#         L1_hist_error = hist_data_[0]
-
-#         KS_errors.append(KS_error)
-#         l1_hist_errors.append(L1_hist_error)
-#         wasserstein_distance_data.append(wasserstein_distances_)
-#         hist_data.append(hist_data_)
-#         LL.append(LL_)
-#         nbins.append(nbins_)
-#         bounds.append(bounds_)
-#     KS_error = np.mean(KS_errors)
-#     L1_hist_error = np.mean(l1_hist_errors)
-#     wasserstein_distance = np.mean(wasserstein_distance_data)
-#     print("[utils_processing] Wasserstein distance = {:}".format(wasserstein_distance))
-#     print("[utils_processing] KS_error = {:}".format(KS_error))
-#     print("[utils_processing] L1_hist_error = {:}".format(L1_hist_error))
-#     state_dist_statistics.update({
-#         "state_dist_L1_hist_error": L1_hist_error,
-#         "state_dist_hist_data": hist_data,
-#         "state_dist_wasserstein_distance": wasserstein_distance,
-#         "state_dist_wasserstein_distance_data": wasserstein_distance_data,
-#         "state_dist_KS_error": KS_error,
-#         "state_dist_N": N_samples,
-#         "state_dist_LL": LL,
-#         "state_dist_nbins": nbins,
-#         "state_dist_bounds": bounds,
-#     })
-#     return state_dist_statistics
-
-# def computeStateDistributionStatisticsCumulative(state_dist_statistics, targets_all, predictions_all):
-#     predictions_ = np.reshape(predictions_all, (-1))
-#     targets_ = np.reshape(targets_all, (-1))
-#     N_samples = np.shape(predictions_)[0]
-#     min_ = np.min([np.min(targets_), np.min(predictions_)])
-#     max_ = np.max([np.max(targets_), np.max(predictions_)])
-#     bounds = [min_, max_]
-#     LL = max_ - min_
-#     nbins = utils_statistics.getNumberOfBins(N_samples, LL)
-#     # L1_hist_error, error_vec, density_target, density_pred, bin_centers = evaluateL1HistErrorVector(targets_, predictions_, nbins, bounds)
-#     hist_data = utils_statistics.evaluateL1HistErrorVector(
-#         targets_, predictions_, nbins, bounds)
-#     L1_hist_error = hist_data[0]
-#     wasserstein_distance = utils_statistics.evaluateWassersteinDistance(
-#         targets_, predictions_)
-#     KS_error = utils_statistics.evaluateKSError(targets_, predictions_)
-#     print("[utils_processing] Wasserstein distance = {:}".format(wasserstein_distance))
-#     print("[utils_processing] KS_error = {:}".format(KS_error))
-#     print("[utils_processing] L1_hist_error = {:}".format(L1_hist_error))
-#     state_dist_statistics.update({
-#         "state_dist_hist_data": hist_data,
-#         "state_dist_L1_hist_error": L1_hist_error,
-#         "state_dist_wasserstein_distance": wasserstein_distance,
-#         "state_dist_KS_error": KS_error,
-#         "state_dist_N": N_samples,
-#         "state_dist_LL": LL,
-#         "state_dist_bounds": bounds,
-#     })
-#     return state_dist_statistics
 
 
 def computeStateDistributionStatistics(model, targets_all, predictions_all):

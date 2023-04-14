@@ -25,8 +25,8 @@ def writeLogfiles(model, testing_mode=None):
             # Writing to a log-file
             logfile = utils.getLogFileDir(
                 model) + "/results_{:}_{:}.txt".format(testing_mode, set_name)
-            utils.writeToLogFile(model, logfile, results,
-                                 results["fields_2_save_2_logfile"])
+            utils.write_to_logfile(model, logfile, results,
+                                   results["fields_2_save_2_logfile"])
     return 0
 
 

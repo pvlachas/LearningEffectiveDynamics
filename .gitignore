@@ -189,3 +189,12 @@ Code/Data/FHN/Data/train/
 Code/Data/FHN/Data/train_raw/
 Code/Data/FHN/Data/val/
 Code/Data/FHN/Data/val_raw/
+
+Code/Data/KSGP64L22/Data/test/
+Code/Data/KSGP64L22/Data/train/
+Code/Data/KSGP64L22/Data/train_raw/
+Code/Data/KSGP64L22/Data/val/
+Code/Data/KSGP64L22/Data/val_raw/
+
+# Ignore results folder
+Code/Results

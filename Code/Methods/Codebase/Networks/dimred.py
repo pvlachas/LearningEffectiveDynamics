@@ -289,7 +289,7 @@ class dimred():
             logfile_train = self.saving_path + self.logfile_dir + model_name_dimred + "/train.txt"
             print("[dimred] Writing to log-file in path {:}".format(
                 logfile_train))
-            utils.writeToLogFile(self, logfile_train, data, fields_to_write)
+            utils.write_to_logfile(self, logfile_train, data, fields_to_write)
 
         data_folder = self.saving_path + self.model_dir + model_name_dimred
         os.makedirs(data_folder, exist_ok=True)

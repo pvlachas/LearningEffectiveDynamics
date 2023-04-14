@@ -343,7 +343,7 @@ class dimred_sindy():
             logfile_train = utils.getLogFileDir(self) + "/train.txt"
             print("[dimred_sindy] Writing to log-file in path {:}".format(
                 logfile_train))
-            utils.writeToLogFile(self, logfile_train, data, fields_to_write)
+            utils.write_to_logfile(self, logfile_train, data, fields_to_write)
 
             logfile_model = utils.getLogFileDir(self) + "/logfile_model.txt"
             print("[dimred_sindy] Saving model as log-file.")
