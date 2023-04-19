@@ -37,13 +37,9 @@ reduction methods, and generate plots and files with diagnostics in the `./Resul
 
 # Data availability
 
-Scripts to generate the data for the FHN and the KS equations are 
-provided in the `./Data` folder.
-In addition, the data for the FHN equation are shared [here](https://zenodo.org/record/7813903).
-Data for the Navier-Stokes flow past a cylinder have been generated 
-using the in-house software library, 
-[CubismUP-2D](https://github.com/novatig/CubismUP_2D) / 
-[Cubism-AMR](https://arxiv.org/abs/2206.07345).
+* Scripts to generate the data for the FHN and the KS equations are provided in the `./Data` folder.
+* In addition, the data for the FHN equation are shared [here](https://zenodo.org/record/7813903).
+* Data for the Navier-Stokes flow past a cylinder have been generated using the in-house software library, [CubismUP-2D](https://github.com/novatig/CubismUP_2D) / [Cubism-AMR](https://arxiv.org/abs/2206.07345).
 
 
 # Environment Setup
